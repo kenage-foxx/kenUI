@@ -1,0 +1,21 @@
+## Interface: 70100
+## Title: |cff3366ffken|rUI Config
+## Notes: kenUI Config GUI
+## Authors: Tukz & Hydra, forked by Kenage
+## Maintainer: Tukz & Azilroka, forked by Kenage
+## SavedVariables: kenUI-ConfigShared, kenUI-ConfigPerAccount
+## SavedVariablesPerCharacter: kenUI-ConfigNotShared
+## RequiredDeps: kenUI
+
+kenUI_Config.lua
+Locales\enUS.lua
+Locales\deDE.lua
+Locales\esES.lua
+Locales\esMX.lua
+Locales\frFR.lua
+Locales\itIT.lua
+Locales\koKR.lua
+Locales\ptBR.lua
+Locales\ruRU.lua
+Locales\zhCN.lua
+Locales\zhTW.lua

@@ -1,0 +1,22 @@
+## Interface: 70100
+## Authors: Tukz & Hydra, forked by Kenage
+## Maintainer: Tukz & Azilroka, forked by Kenage
+## Version: 17.09-K1
+## Title: |cff3366ffken|r|cffffffffUI|r
+## Notes: Forked UI of awesomeness!
+## SavedVariables: kenUI-Data
+## SavedVariablesPerCharacter: kenUI-DataPerChar
+## OptionalDeps: kenUI_Config, Clique
+## X-oUF: kenUIUnitFrameFramework
+## Website: http://www.tukui.org
+## X-Tukui-ProjectID: -1
+## X-Tukui-ProjectFolders: kenUI, kenUI_Config
+
+Core\Init.lua
+Config\Init.xml
+Libs\Init.xml
+Medias\Medias.lua
+Locales\Init.xml
+Core\Init.xml
+Modules\Init.xml
+Core\Temp.lua
