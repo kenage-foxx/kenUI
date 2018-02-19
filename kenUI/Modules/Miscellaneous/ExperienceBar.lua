@@ -7,10 +7,10 @@ local Panels = T["Panels"]
 local Bars = 20
 
 Experience.NumBars = 2
-Experience.RestedColor = {75/255, 175/255, 76/255}
-Experience.XPColor = {0/255, 144/255, 255/255}
-Experience.AFColor = {229/255, 204/255, 127/255}
-Experience.HNColor = {222/255, 22/255, 22/255}
+Experience.RestedColor = {75 / 255, 175 / 255, 76 / 255}
+Experience.XPColor = {0 / 255, 144 / 255, 255 / 255}
+Experience.AFColor = {229 / 255, 204 / 255, 127 / 255}
+Experience.HNColor = {222 / 255, 22 / 255, 22 / 255}
 
 function Experience:SetTooltip()
 	local BarType = self.BarType
@@ -25,42 +25,44 @@ function Experience:SetTooltip()
 	if BarType == "XP" then
 		local Rested = GetXPExhaustion()
 		local IsRested = GetRestState()
-		
+
 		Current, Max = Experience:GetExperience()
-		
+
 		if Max == 0 then
 			return
 		end
-		
-		GameTooltip:AddLine(string.format("|cff0090FF"..XP..": %d / %d (%d%% - %d/%d)|r", Current, Max, Current / Max * 100, Bars - (Bars * (Max - Current) / Max), Bars))
-		
+
+		GameTooltip:AddLine("|cff0090FF"..XP..": " .. Current .. " / " .. Max .. " (" .. floor(Current / Max * 100) .. "% - " .. floor(Bars - (Bars * (Max - Current) / Max)) .. "/" .. Bars .. ")|r")
+
 		if (IsRested == 1 and Rested) then
-			GameTooltip:AddLine(string.format("|cff4BAF4C"..TUTORIAL_TITLE26..": +%d (%d%%)|r", Rested, Rested / Max * 100))
+			GameTooltip:AddLine("|cff4BAF4C"..TUTORIAL_TITLE26..": +" .. Rested .." (" .. Rested / Max * 100 .. "%)|r")
 		end
 	elseif BarType == "ARTIFACT" then
 		Current, Max = Experience:GetArtifact()
-		
+
 		if Max == 0 then
 			return
 		end
-		
-		GameTooltip:AddLine(string.format("|cffe6cc80"..ARTIFACT_POWER..": %d / %d (%d%% - %d/%d)|r", Current, Max, Current / Max * 100, Bars - (Bars * (Max - Current) / Max), Bars))
-		GameTooltip:AddLine(" ");
-		GameTooltip:AddLine(ARTIFACT_POWER_TOOLTIP_BODY:format(ArtifactWatchBar.numPointsAvailableToSpend), nil, nil, nil, true);
+
+		GameTooltip:AddLine("|cffe6cc80"..ARTIFACT_POWER..": ".. Current .. " / " .. Max .. " (" ..  floor(Current / Max * 100) .. "% - " .. floor(Bars - (Bars * (Max - Current) / Max)) .. "/" .. Bars ..")|r")
+		if (ArtifactWatchBar.numPointsAvailableToSpend > 0) then
+			GameTooltip:AddLine(" ");
+			GameTooltip:AddLine(ARTIFACT_POWER_TOOLTIP_BODY:format(ArtifactWatchBar.numPointsAvailableToSpend), nil, nil, nil, true);
+		end
 	else
 		local Level = UnitHonorLevel("player")
 		local LevelMax = GetMaxPlayerHonorLevel()
 		local Prestige = UnitPrestige("player")
-		
+
 		Current, Max = Experience:GetHonor()
-		
+
 		if Max == 0 then
 			GameTooltip:AddLine(PVP_HONOR_PRESTIGE_AVAILABLE)
-			GameTooltip:AddLine(PVP_HONOR_XP_BAR_CANNOT_PRESTIGE_HERE) 
+			GameTooltip:AddLine(PVP_HONOR_XP_BAR_CANNOT_PRESTIGE_HERE)
 		else
-			GameTooltip:AddLine(string.format("|cffee2222"..HONOR..": %d / %d (%d%% - %d/%d)|r", Current, Max, Current / Max * 100, Bars - (Bars * (Max - Current) / Max), Bars))
-			GameTooltip:AddLine(string.format("|cffcccccc"..RANK..": %d / %d|r", Level, LevelMax))
-			GameTooltip:AddLine(string.format("|cffcccccc"..PVP_PRESTIGE_RANK_UP_TITLE..": %d|r", Prestige))
+			GameTooltip:AddLine("|cffee2222"..HONOR..": " .. Current .. " / " .. Max .. " (" .. floor(Current / Max * 100) .. "% - " .. floor(Bars - (Bars * (Max - Current) / Max)) .. "/" .. Bars .. ")|r")
+			GameTooltip:AddLine("|cffcccccc"..RANK..": " .. Level .. " / " .. LevelMax .. "|r")
+			GameTooltip:AddLine("|cffcccccc"..PVP_PRESTIGE_RANK_UP_TITLE..": " .. Prestige .. "|r")
 		end
 	end
 
@@ -72,9 +74,9 @@ function Experience:GetExperience()
 end
 
 function Experience:GetArtifact()
-	local itemID, altItemID, name, icon, totalXP, pointsSpent, quality, artifactAppearanceID, appearanceModID, itemAppearanceID, altItemAppearanceID, altOnTop = C_ArtifactUI.GetEquippedArtifactInfo()
-	local numPointsAvailableToSpend, xp, xpForNextPoint = MainMenuBar_GetNumArtifactTraitsPurchasableFromXP(pointsSpent, totalXP)
-	
+	local itemID, altItemID, name, icon, totalXP, pointsSpent, quality, artifactAppearanceID, appearanceModID, itemAppearanceID, altItemAppearanceID, altOnTop, artifactTier = C_ArtifactUI.GetEquippedArtifactInfo()
+	local numPointsAvailableToSpend, xp, xpForNextPoint = MainMenuBar_GetNumArtifactTraitsPurchasableFromXP(pointsSpent, totalXP, artifactTier)
+
 	return xp, xpForNextPoint
 end
 
@@ -98,9 +100,9 @@ function Experience:Update(event, owner)
 		local Bar = self["XPBar"..i]
 		local RestedBar = self["RestedBar"..i]
 		local r, g, b
-		
+
 		Bar.BarType = "XP"
-		
+
 		if (i == 1 and PlayerLevel == MAX_PLAYER_LEVEL) then
 			Current, Max = self:GetHonor()
 
@@ -116,9 +118,9 @@ function Experience:Update(event, owner)
 				Bar.BarType = "HONOR"
 			end
 		end
-		
+
 		local BarType = Bar.BarType
-		
+
 		Bar:SetMinMaxValues(0, Max)
 		Bar:SetValue(Current)
 
@@ -129,7 +131,7 @@ function Experience:Update(event, owner)
 		else
 			RestedBar:Hide()
 		end
-		
+
 		if BarType == "XP" then
 			r, g, b = unpack(self.XPColor)
 		elseif BarType == "ARTIFACT" then
@@ -137,7 +139,7 @@ function Experience:Update(event, owner)
 		else
 			r, g, b = unpack(self.HNColor)
 		end
-		
+
 		Bar:SetStatusBarColor(r, g, b)
 	end
 end

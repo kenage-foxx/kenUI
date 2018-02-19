@@ -107,7 +107,7 @@ function Bags:HideBlizzard()
 	BankClose:Hide()
 	BankPortraitTexture:Hide()
 	BagHelpBox:Kill()
-	BankFrame:EnableMouse(false)
+	BankFrame:HookScript('OnShow', function(self) self:EnableMouse(false) end)
 
 	for i = 1, 12 do
 		local CloseButton = _G["ContainerFrame"..i.."CloseButton"]
@@ -352,7 +352,12 @@ function Bags:CreateContainer(storagetype, ...)
 				CloseAllBags()
 				CloseBankBagFrames()
 				CloseBankFrame()
-				PlaySound("igBackPackClose")
+
+				if (T.WoWBuild >= 24904) then
+					PlaySound(SOUNDKIT.IG_BACKPACK_CLOSE)
+				else
+					PlaySound("igBackPackClose")
+				end
 			end
 		end)
 
@@ -425,8 +430,9 @@ function Bags:CreateContainer(storagetype, ...)
 			BankFrame_ShowPanel(BANK_PANELS[2].name)
 
 			if (not ReagentBankFrame.isMade) then
-				self:CreateReagentContainer()
-				ReagentBankFrame.isMade = true
+				-- self:CreateReagentContainer()
+				-- ReagentBankFrame.isMade = true
+				ReagentBankFrame.isMade = self:CreateReagentContainer() -- Attempt to fix a conflict with TSM.
 			else
 				self.Reagent:Show()
 
@@ -537,6 +543,7 @@ function Bags:SkinTokens()
 		local Count = _G["BackpackTokenFrameToken"..i.."Count"]
 		local PreviousToken = _G["BackpackTokenFrameToken"..(i - 1)]
 
+		Token:SetParent(self.Bag)
 		Token:SetFrameStrata("HIGH")
 		Token:SetFrameLevel(5)
 		Token:SetScale(1)
@@ -557,20 +564,20 @@ function Bags:SlotUpdate(id, button)
 	end
 
 	local ItemLink = GetContainerItemLink(id, button:GetID())
-	
+
 	local Texture, Count, Lock, quality, _, _, _, _, _, ItemID = GetContainerItemInfo(id, button:GetID())
 	local IsNewItem = C_NewItems.IsNewItem(id, button:GetID())
-	
+
 	if IsNewItem ~= true and button.Animation and button.Animation:IsPlaying() then
 		button.Animation:Stop()
 	end
-	
+
 	if (button.ItemID == ItemID) then
 		return
 	end
-	
+
 	button.ItemID = ItemID
-	
+
 	local IsQuestItem, QuestId, IsActive = GetContainerItemQuestInfo(id, button:GetID())
 	local IsBattlePayItem = IsBattlePayItem(id, button:GetID())
 	local NewItem = button.NewItemTexture
@@ -606,11 +613,11 @@ function Bags:SlotUpdate(id, button)
 			button.Animation:Play()
 		end
 	end
-	
+
 	if IsQuestItem then
 		button:SetBackdropBorderColor(1, 1, 0)
 	elseif ItemLink then
-		local Rarity = select(3, GetItemInfo(ItemLink)) or 0
+		local Rarity = select(4, GetContainerItemInfo(id, button:GetID())) or 0
 
 		button:SetBackdropBorderColor(GetItemQualityColor(Rarity))
 	else
@@ -628,7 +635,7 @@ function Bags:BagUpdate(id)
 			if not Button:IsShown() then
 				Button:Show()
 			end
-			
+
 			self:SlotUpdate(id, Button)
 		end
 	end
@@ -857,7 +864,12 @@ function Bags:CloseAllBags()
 	end
 
 	CloseAllBags()
-	PlaySound("igBackPackClose")
+
+	if (T.WoWBuild >= 24904) then
+		PlaySound(SOUNDKIT.IG_BACKPACK_CLOSE)
+	else
+		PlaySound("igBackPackClose")
+	end
 end
 
 function Bags:CloseAllBankBags()
@@ -901,21 +913,21 @@ function Bags:OnEvent(event, ...)
 		self:BagUpdate(...)
 	elseif (event == "BAG_CLOSED") then
 		-- This is usually where the client find a bag swap in character or bank slots.
-		
+
 		local Bag = ... + 1
 
 		-- We need to hide buttons from a bag when closing it because they are not parented to the original frame
 		local Container = _G["ContainerFrame"..Bag]
 		local Size = Container.size
-		
+
 		for i = 1, Size do
 			local Button = _G["ContainerFrame"..Bag.."Item"..i]
-			
+
 			if Button then
 				Button:Hide()
 			end
 		end
-		
+
 		-- We close to refresh the all in one layout.
 		self:CloseAllBags()
 		self:CloseAllBankBags()
@@ -978,6 +990,10 @@ function Bags:Enable()
 		end
 	end)
 
+	Bag:HookScript("OnShow", function() -- Cinematic Bug with Bags open.
+        self.Bag:Show()
+    end)
+
 	Bank:SetScript("OnHide", function()
 		self.Bank:Hide()
 	end)
@@ -1010,7 +1026,10 @@ function Bags:Enable()
 	--self:RegisterEvent("BAG_UPDATE_COOLDOWN")
 	self:SetScript("OnEvent", self.OnEvent)
 
-	-- Force an update, setting colors
+	if T.WoWBuild >= 25860 then
+		function ManageBackpackTokenFrame() end
+	end
+
 	ToggleAllBags()
 	ToggleAllBags()
 end
